@@ -9,15 +9,19 @@ import time
 import struct
 import string
 
-
 dictProduct = {"XAUUSD":"3289648", "XAGUSD":"3355184", "AUDJPY":"3158321", "AUDNZD":"3682609", "AUDUSD":"3485745",
                "CADJPY":"3289393",  "CLWTI":"4534320", "EURAUD":"3486001", "EURCHF":"3420465", "EURGBP":"3354929",
                "EURJPY":"3682353", "EURUSD":"3223601", "GBPAUD":"3617073", "GBPCHF":"3551537", "GBPJPY":"3747889",
                "GBPUSD":"3354673", "NZDJPY":"3223857", "NZDUSD":"3551281", "USDCAD":"3616817", "USDCHF":"3420209",
-               "USDJPY":"3289137",   "USDX":"3159344", "XBTUSD":"3158072"}
+               "USDJPY":"3289137",   "USDX":"3159344", "XBTUSD":"3158072", "USDCNH":"3748145", "HKDCNH":"3158577"}
 
-dictType = {'1min':35, '5min':1, 'day':5,'week':6,'month':7}
+dictShotProd = {"XAUUSD":"022", "XAGUSD":"023", "AUDJPY":"110", "AUDNZD":"118", "AUDUSD":"105",
+               "CADJPY":"112", "CLWTI":"00E", "EURAUD":"115", "EURCHF":"114", "EURGBP":"113",
+               "EURJPY":"108", "EURUSD":"101", "GBPAUD":"117", "GBPCHF":"116", "GBPJPY":"109",
+               "GBPUSD":"103", "NZDUSD":"106", "USDCAD":"107", "USDCHF":"104", "USDX":"050",
+               "USDJPY":"102", "NZDJPY":"111", "USDCNH":"119", "HKDCNH":"120"}
 
+dictType = {'1min':35, '5min':1, 'day':5, 'week':6, 'month':7}
 
 def funCreatefile(linedata):
     """
@@ -40,7 +44,7 @@ def funCreatefile(linedata):
     global fpKdata
     if strtim.tm_yday != g_yday:
         fileDir = "KLine%04d_%02d_%02d" % (strtim.tm_year, strtim.tm_mon, strtim.tm_mday)
-        fileName = "%s-%d.kline" % (dictProduct[fileProduct], dictType[fileType])
+        fileName = "%s-%d.kline" % (dictShotProd[fileProduct], dictType[fileType])
         print "./",fileDir,"/", fileName        
 
         if strtim.tm_yday != (g_yday+1):
@@ -83,8 +87,9 @@ if __name__=='__main__':
 
     rootdir = os.getcwd()                 # 指明被遍历的文件夹
         
-    for filecsv in glob.glob(rootdir + os.sep + '*.csv'):
+    for filecsv in glob.glob(rootdir + os.sep + '*.csv'):    #遍历当前文件夹内目标文件
         os.chdir(rootdir)
+        #print os.getcwd()
         fyestDayPri = 0
         g_yday = 0
         fpKdata = 0
@@ -92,7 +97,13 @@ if __name__=='__main__':
             continue
         else:
             fileProduct = os.path.basename(filecsv).split('-')[0]       #产品名
+            if fileProduct not in dictShotProd :
+                print "one Error:", filecsv, "Product not in dictShotProd"
+                continue
             fileType = os.path.basename(filecsv).split('-')[1].split('.')[0]
+            if fileType not in dictType :
+                print "one Error: may not identify Chinese", filecsv, "Type not in dictType:", str(dictType)
+                continue            
             print filecsv, fileProduct, fileType
             funReadcsv()
 
@@ -100,7 +111,7 @@ if __name__=='__main__':
             fpKdata.close()
             fpKdata = 0
 
-    raw_input("please input Enter to close ...");
+    raw_input("Done, please input Enter to close ...");
 
 
 
